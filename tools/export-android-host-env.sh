@@ -19,8 +19,8 @@
 
 function install_depends() {
     local name="$1"
-    local r=$(brew list | grep "$name")
-    if [[ -z $r ]]; then
+    # 命令已在 PATH 中就不再走 brew（新版 brew 的 pkg-config 由 pkgconf 提供，brew list 里搜不到）
+    if ! command -v "$name" >/dev/null 2>&1; then
         echo "will use brew install ${name}."
         brew install "$name"
     fi
