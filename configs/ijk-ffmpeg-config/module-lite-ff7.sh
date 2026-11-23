@@ -5,7 +5,7 @@
 #   - 去掉 FFmpeg 5 已删除的选项（--disable-avresample 等）
 #   - 显式打开 ijk 自定义 demuxer（ijklivehook / ijklas）：FFmpeg 7 的 demuxer 列表在编译期固定，
 #     ijkmedia 运行时只把实现挂到补丁预留的占位上，--disable-demuxers 后不打开就找不到
-#   - 去掉 mp4 muxer（ijkmedia 未使用）
+#   - mp4 muxer 额外启用 mov muxer，并保留其依赖 vp9_superframe bsf
 #! /usr/bin/env bash
 
 #--------------------
@@ -92,7 +92,9 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-hwaccels"
 
 # ./configure --list-muxers
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-muxers"
-# FFmpeg 7：不再启用 mp4 muxer（依赖 mov muxer 及 vp9_superframe 等已裁掉的组件；ijkmedia 未使用任何 muxer）
+# 录制/转存 mp4 需要（安防监控 App 将视频流转存为 mp4）；FFmpeg 7 中 mp4 muxer 依赖 mov muxer
+export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-muxer=mp4"
+export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-muxer=mov"
 
 # ./configure --list-demuxers
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-demuxers"
@@ -139,7 +141,7 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-bsf=mpeg4_unpack_bfra
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-bsf=noise"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-bsf=remove_extradata"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-bsf=text2movsub"
-export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-bsf=vp9_superframe"
+# vp9_superframe 为 mov muxer 的依赖，FFmpeg 7 中不能再禁用
 
 # ./configure --list-protocols
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-protocols"
